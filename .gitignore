@@ -1,4 +1,4 @@
-*.ipynb
+
 *.parquet
 .ipynb_checkpoints
 .venv
