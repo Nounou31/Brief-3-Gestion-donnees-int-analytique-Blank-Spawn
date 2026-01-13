@@ -1,4 +1,9 @@
 import pandas as pd
+import os
+
+# ============================
+# 1. Chargement des données brutes
+# ============================
 
 def load_raw_data():
     operations = pd.read_csv("data/operations.csv")
@@ -6,22 +11,105 @@ def load_raw_data():
     resultats = pd.read_csv("data/resultats_humain.csv")
     return operations, flotteurs, resultats
 
+
+# ============================
+# 2. Nettoyage OPERATIONS
+# ============================
+
 def clean_operations(df):
 
+    # Convertir les dates avec gestion des dates aberrantes
+    df['date_heure_reception_alerte'] = pd.to_datetime(
+        df['date_heure_reception_alerte'], errors='coerce'
+    )
+
+    df['date_heure_fin_operation'] = pd.to_datetime(
+        df['date_heure_fin_operation'], errors='coerce'
+    )
+
+    # Colonnes numériques
+    numeric_cols = [
+        'latitude', 'longitude',
+        'vent_direction', 'vent_force', 'mer_force'
+    ]
+
+    for col in numeric_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+
+    # Colonnes texte
+    text_cols = [
+        'type_operation', 'pourquoi_alerte', 'moyen_alerte', 'qui_alerte',
+        'categorie_qui_alerte', 'cross', 'departement', 'evenement',
+        'categorie_evenement', 'autorite', 'seconde_autorite',
+        'zone_responsabilite', 'vent_direction_categorie',
+        'cross_sitrep', 'fuseau_horaire', 'systeme_source'
+    ]
+
+    for col in text_cols:
+        if col in df.columns:
+            df[col] = df[col].astype('string')
+
     return df
+
+
+# ============================
+# 3. Nettoyage FLOTTEURS
+# ============================
 
 def clean_flotteurs(df):
 
+    # Supprimer les doublons
+    df = df.drop_duplicates()
+
+    # Convertir numero_ordre en numérique
+    if 'numero_ordre' in df.columns:
+        df['numero_ordre'] = pd.to_numeric(df['numero_ordre'], errors='coerce')
+
+    # Colonnes texte
+    text_cols = [
+        'pavillon', 'resultat_flotteur', 'type_flotteur',
+        'categorie_flotteur', 'numero_immatriculation'
+    ]
+
+    for col in text_cols:
+        if col in df.columns:
+            df[col] = df[col].astype('string')
+
     return df
+
+
+# ============================
+# 4. Nettoyage RESULTATS_HUMAIN
+# ============================
 
 def clean_resultats(df):
 
+    # Harmoniser les types texte
+    if 'resultat_flotteur' in df.columns:
+        df['resultat_flotteur'] = df['resultat_flotteur'].astype('string')
+
     return df
 
+
+# ============================
+# 5. Sauvegarde des données nettoyées
+# ============================
+
 def save_clean_data(ops, flot, res):
+
+    os.makedirs("data", exist_ok=True)
+
     ops.to_csv("data/operations_clean.csv", index=False)
     flot.to_csv("data/flotteurs_clean.csv", index=False)
     res.to_csv("data/resultats_humain_clean.csv", index=False)
+
+    print("✔ Données nettoyées enregistrées dans data/")
+
+
+# ============================
+# 6. Pipeline principal
+# ============================
 
 if __name__ == "__main__":
     ops, flot, res = load_raw_data()
