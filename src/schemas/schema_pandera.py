@@ -71,5 +71,12 @@ FlotteursSchema = DataFrameSchema({
 ResultatsHumainSchema = DataFrameSchema({
 
     "operation_id": pa.Column(int, nullable=False),
-    "resultat_flotteur": pa.Column(pa.String, nullable=True),
+
+    "categorie_personne": pa.Column(pa.String, nullable=True),
+    "resultat_humain": pa.Column(pa.String, nullable=True),
+
+    "nombre": pa.Column(int, nullable=True),
+    "dont_nombre_blesse": pa.Column(int, nullable=True),
+
 })
+
