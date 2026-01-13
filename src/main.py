@@ -41,6 +41,10 @@ def clean_operations(df):
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce')
 
+    #  Conversion spécifique pour numero_sitrep
+    if 'numero_sitrep' in df.columns:
+        df['numero_sitrep'] = pd.to_numeric(df['numero_sitrep'], errors='coerce')
+
     # Colonnes texte
     text_cols = [
         'type_operation', 'pourquoi_alerte', 'moyen_alerte', 'qui_alerte',
@@ -55,6 +59,7 @@ def clean_operations(df):
             df[col] = df[col].astype('string')
 
     return df
+
 
 
 # ============================
@@ -141,16 +146,21 @@ if __name__ == "__main__":
     ops, flot, res = load_raw_data()
 
     # Nettoyage
-    ops = clean_resultats(ops)
+    ops = clean_operations(ops)
     flot = clean_flotteurs(flot)
     res = clean_resultats(res)
     save_clean_data(ops, flot, res)
-    
+
     # Check intégrité Pandera avec nom de schéma
     schema_mapping = {
-        "operations": (
-            pd.read_csv("data/operations_clean.csv"),
-            OperationsSchema
+        ops_clean = pd.read_csv("data/operations_clean.csv")
+
+        # reconvertir les dates AVANT validation
+        ops_clean["date_heure_reception_alerte"] = pd.to_datetime(ops_clean["date_heure_reception_alerte"], errors="coerce")
+        ops_clean["date_heure_fin_operation"] = pd.to_datetime(ops_clean["date_heure_fin_operation"], errors="coerce")
+
+        "operations": (ops_clean, OperationsSchema),
+
         ),
         "flotteurs": (
             pd.read_csv("data/flotteurs_clean.csv"),
