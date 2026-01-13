@@ -151,17 +151,27 @@ if __name__ == "__main__":
     res = clean_resultats(res)
     save_clean_data(ops, flot, res)
 
+    ops_clean = pd.read_csv("data/operations_clean.csv")
+
+    # reconvertir les dates AVANT validation
+    ops_clean["date_heure_reception_alerte"] = pd.to_datetime(ops_clean["date_heure_reception_alerte"], errors="coerce")
+    ops_clean["date_heure_fin_operation"] = pd.to_datetime(ops_clean["date_heure_fin_operation"], errors="coerce")
+
+    ops_clean["date_heure_reception_alerte"] = pd.to_datetime(
+    ops_clean["date_heure_reception_alerte"],
+    errors="coerce",
+    utc=True
+)
+
+    ops_clean["date_heure_fin_operation"] = pd.to_datetime(
+        ops_clean["date_heure_fin_operation"],
+        errors="coerce",
+        utc=True
+    )
+
     # Check intégrité Pandera avec nom de schéma
     schema_mapping = {
-        ops_clean = pd.read_csv("data/operations_clean.csv")
-
-        # reconvertir les dates AVANT validation
-        ops_clean["date_heure_reception_alerte"] = pd.to_datetime(ops_clean["date_heure_reception_alerte"], errors="coerce")
-        ops_clean["date_heure_fin_operation"] = pd.to_datetime(ops_clean["date_heure_fin_operation"], errors="coerce")
-
         "operations": (ops_clean, OperationsSchema),
-
-        ),
         "flotteurs": (
             pd.read_csv("data/flotteurs_clean.csv"),
             FlotteursSchema

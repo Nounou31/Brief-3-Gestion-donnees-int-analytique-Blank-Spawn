@@ -1,4 +1,5 @@
 import pandera as pa
+import pandas as pd
 from pandera import DataFrameSchema, Check
 
 
@@ -33,8 +34,14 @@ OperationsSchema = DataFrameSchema({
     "vent_force": pa.Column(float, nullable=True, checks=Check.ge(0)),
     "mer_force": pa.Column(float, nullable=True, checks=Check.ge(0)),
 
-    "date_heure_reception_alerte": pa.Column(pa.DateTime, nullable=True),
-    "date_heure_fin_operation": pa.Column(pa.DateTime, nullable=True),
+    "date_heure_reception_alerte": pa.Column(
+        pd.DatetimeTZDtype(tz="UTC"),
+        nullable=True
+    ),
+    "date_heure_fin_operation": pa.Column(
+        pd.DatetimeTZDtype(tz="UTC"),
+        nullable=True
+    ),
 
     "numero_sitrep": pa.Column(pa.Int, nullable=True),
 })
