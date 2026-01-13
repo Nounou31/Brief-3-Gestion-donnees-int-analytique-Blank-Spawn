@@ -7,15 +7,15 @@ def load_raw_data():
     return operations, flotteurs, resultats
 
 def clean_operations(df):
-    # nettoyage complet ici
+
     return df
 
 def clean_flotteurs(df):
-    # nettoyage complet ici
+
     return df
 
 def clean_resultats(df):
-    # nettoyage complet ici
+
     return df
 
 def save_clean_data(ops, flot, res):
