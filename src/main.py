@@ -1,10 +1,11 @@
-import pandas as pd
+from schemas.schema_pandera import OperationsSchema, FlotteursSchema, ResultatsHumainSchema
+from utils.data_types import operations_dtypes, flotteurs_dtypes, resultats_humain_dtypes
+from utils.db_utils import get_engine, insert_dataframe
+from pandera.errors import SchemaErrors
 import pandera as pa
-from pandera.errors import SchemaError, SchemaErrors
+import pandas as pd
 import logging
 import os
-from schemas.schema_pandera import OperationsSchema, FlotteursSchema, ResultatsHumainSchema
-from utils.db_utils import get_engine, insert_dataframe
 
 # ============================
 # 1. Chargement des données brutes
@@ -152,17 +153,28 @@ if __name__ == "__main__":
     res = clean_resultats(res)
     save_clean_data(ops, flot, res)
 
-    ops_clean = pd.read_csv("data/operations_clean.csv")
+    # Ré-hydrater les données (car repasser par un CSV nous fait perdre certains types de données)
+    date_cols_ops = [
+        "date_heure_reception_alerte",
+        "date_heure_fin_operation"
+    ]
+
+    ops_clean = pd.read_csv(
+        "data/operations_clean.csv",
+        dtype=operations_dtypes,
+        parse_dates=date_cols_ops,
+        date_parser=lambda col: pd.to_datetime(col, utc=True)
+    )
 
     # reconvertir les dates AVANT validation
     ops_clean["date_heure_reception_alerte"] = pd.to_datetime(ops_clean["date_heure_reception_alerte"], errors="coerce")
     ops_clean["date_heure_fin_operation"] = pd.to_datetime(ops_clean["date_heure_fin_operation"], errors="coerce")
 
     ops_clean["date_heure_reception_alerte"] = pd.to_datetime(
-    ops_clean["date_heure_reception_alerte"],
-    errors="coerce",
-    utc=True
-)
+        ops_clean["date_heure_reception_alerte"],
+        errors="coerce",
+        utc=True
+    )
 
     ops_clean["date_heure_fin_operation"] = pd.to_datetime(
         ops_clean["date_heure_fin_operation"],
@@ -174,12 +186,18 @@ if __name__ == "__main__":
     schema_mapping = {
         "operations": (ops_clean, OperationsSchema, "operation"),
         "flotteurs": (
-            pd.read_csv("data/flotteurs_clean.csv"),
+            pd.read_csv(
+                "data/flotteurs_clean.csv",
+                dtype=flotteurs_dtypes
+            ),
             FlotteursSchema,
             "flotteurs"
         ),
         "resultats_humain": (
-            pd.read_csv("data/resultats_humain_clean.csv"),
+            pd.read_csv(
+                "data/resultats_humain_clean.csv",
+                dtype=resultats_humain_dtypes
+            ),
             ResultatsHumainSchema,
             "resultats_humain"
         )
@@ -195,5 +213,4 @@ if __name__ == "__main__":
             df,
             table_name,
             supa_engine,
-            schema=schema
         )
