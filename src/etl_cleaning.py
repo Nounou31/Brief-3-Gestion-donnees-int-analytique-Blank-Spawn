@@ -1,9 +1,9 @@
 import pandas as pd
 
 def load_raw_data():
-    operations = pd.read_csv("data/operations_raw.csv")
-    flotteurs = pd.read_csv("data/flotteurs_raw.csv")
-    resultats = pd.read_csv("data/resultats_humain_raw.csv")
+    operations = pd.read_csv("data/operations.csv")
+    flotteurs = pd.read_csv("data/flotteurs.csv")
+    resultats = pd.read_csv("data/resultats_humain.csv")
     return operations, flotteurs, resultats
 
 def clean_operations(df):
