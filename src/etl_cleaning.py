@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+from schema_pandera import OperationsSchema, FlotteursSchema, ResultatsHumainSchema
 
 # ============================
 # 1. Chargement des données brutes
