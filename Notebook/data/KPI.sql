@@ -2,7 +2,7 @@
 SELECT COUNT(operation_id) AS nb_operations
 FROM operation;
 
---Durée moyenne d’une opération(a tester)
+--Durée moyenne d’une opération(a teste)
 SELECT
     AVG(date_heure_fin_operation - date_heure_reception_alerte) AS duree_moyenne
 FROM operation
